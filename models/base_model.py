@@ -61,7 +61,8 @@ class BaseModel:
     def to_dict(self):
         """returns a dictionary containing all keys/values of the instance"""
         new_dict = self.__dict__.copy()
-        if "password" in new_dict and models.storage_t == 'db':
+        if not save and new_dict["__class__"] == "User" \
+            and "password" in new_dict:
             del new_dict["password"]
         if "created_at" in new_dict:
             new_dict["created_at"] = new_dict["created_at"].strftime(time)

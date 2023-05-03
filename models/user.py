@@ -2,6 +2,7 @@
 """ holds class User"""
 import models
 from models.base_model import BaseModel, Base
+from hashlib import md5
 from os import getenv
 import sqlalchemy
 from sqlalchemy import Column, String
@@ -27,3 +28,9 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+        
+    def __setattr__(self, name, value):
+    """set attributes for the `User` class"""
+    if name == "password":
+        value = md5(value.encode()).hexdigest()
+    super(User, self).__setattr__(name, value)

@@ -26,23 +26,27 @@ def get_place_amenities(place_id):
     ])
 
 
-@app_views.route('/places/<place_id>/amenities/<string:amenity_id>',
+@app_views.route('/places/<place_id>/amenities/<amenity_id>',
                  methods=['DELETE'], strict_slashes=False)
-def delete_place_amenity(place_id, amenity_id):
-    """Deletes an amenity with the id passed"""
+def del_place_amenity(place_id, amenity_id):
+    """Returns an empty dictionary with the status code 200"""
+    obj_place = storage.get(Place, place_id)
+    if obj_place is None:
+        abort(404)
 
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
+    obj_amenity = storage.get(Amenity, amenity_id)
+    if obj_amenity is None:
         abort(404)
-    place = storage.get(Place, place_id)
-    if place is None:
-        abort(404)
-    amenities = place.amenities
-    if amenity not in amenities:
-        abort(404)
-    new_amenities = [item for item in amenities if item != amenity_id]
-    place.amenities = new_amenities
-    storage.save()
+
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        if obj_amenity in obj_place.amenities:
+            obj_place.amenities.remove(obj_amenity)
+            storage.save()
+    else:
+        if obj_amenity.id in obj_place.amenity_ids:
+            obj_place.amenity_ids.remove(obj_amenity.id)
+            storage.save()
+
     return make_response(jsonify({}), 200)
 
 
